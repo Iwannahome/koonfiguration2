@@ -1,0 +1,22 @@
+Package: test-package
+Version: 1.0.0
+Architecture: amd64
+Depends: dep1, dep2 (>= 1.0), dep3 | dep4
+Description: Test package for demonstration
+
+Package: dep1
+Version: 1.0.0
+Architecture: amd64
+Depends: dep2
+Description: Dependency 1
+
+Package: dep2
+Version: 2.0.0
+Architecture: amd64
+Description: Dependency 2
+
+Package: dep3
+Version: 1.5.0
+Architecture: amd64
+Description: Dependency 3
+

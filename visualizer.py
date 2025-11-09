@@ -8,6 +8,7 @@
 
 import argparse
 import sys
+from repository import PackageRepository
 
 
 def create_parser():
@@ -132,8 +133,42 @@ def main():
         # Выводим конфигурацию
         print_configuration(args)
         
+        # === НОВЫЙ КОД ДЛЯ ЭТАПА 2 ===
+        print("\n" + "=" * 60)
+        print("ЭТАП 2: СБОР ДАННЫХ О ЗАВИСИМОСТЯХ")
+        print("=" * 60)
+        
+        # Создаём объект репозитория
+        repo = PackageRepository(args.repository, args.test_mode)
+        
+        # Получаем информацию о пакете
+        print(f"\nПоиск пакета '{args.package}'...")
+        package_info = repo.get_package_info(args.package)
+        
+        if not package_info:
+            print(f"✗ Пакет '{args.package}' не найден в репозитории")
+            return 1
+        
+        print(f"✓ Пакет найден!")
+        print(f"  Версия: {package_info.get('Version', 'неизвестно')}")
+        print(f"  Архитектура: {package_info.get('Architecture', 'неизвестно')}")
+        
+        # Получаем зависимости
+        dependencies = repo.get_dependencies(args.package)
+        
+        print(f"\n✓ Найдено зависимостей: {len(dependencies)}")
+        
+        if dependencies:
+            print("\nСписок зависимостей:")
+            for i, dep in enumerate(dependencies, 1):
+                print(f"  {i}. {dep}")
+        else:
+            print("  (пакет не имеет зависимостей)")
+        
         # Успешное завершение
-        print("\n✓ Этап 1: Конфигурация успешно обработана!")
+        print("\n" + "=" * 60)
+        print("✓ Этап 2: Данные успешно собраны!")
+        print("=" * 60)
         return 0
         
     except ValueError as e:
@@ -147,6 +182,8 @@ def main():
         print(f"\n✗ НЕПРЕДВИДЕННАЯ ОШИБКА:", file=sys.stderr)
         print(f"{e}", file=sys.stderr)
         return 2
+
+
 
 
 if __name__ == "__main__":
