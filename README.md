@@ -23,7 +23,7 @@
 python3 –version
 
 ## Установка
-git clone https://github.com/Iwannahome/konfiguration2.git 
+git clone https://github.com/Iwannahome/koonfiguration2.git 
 cd dep-visualizer 
 chmod +x visualizer.py
 
