@@ -24,7 +24,7 @@ python3 –version
 
 ## Установка
 git clone https://github.com/Iwannahome/koonfiguration2.git 
-cd dep-visualizer 
+cd koonfiguration2
 chmod +x visualizer.py
 
 ## Использование
