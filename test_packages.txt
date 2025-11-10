@@ -1,22 +1,65 @@
-Package: test-package
+Package: A
 Version: 1.0.0
-Architecture: amd64
-Depends: dep1, dep2 (>= 1.0), dep3 | dep4
-Description: Test package for demonstration
+Architecture: all
+Depends: B, C
+Description: Main package A
 
-Package: dep1
+Package: B
 Version: 1.0.0
-Architecture: amd64
-Depends: dep2
-Description: Dependency 1
+Architecture: all
+Depends: D, E
+Description: Package B
 
-Package: dep2
-Version: 2.0.0
-Architecture: amd64
-Description: Dependency 2
+Package: C
+Version: 1.0.0
+Architecture: all
+Depends: F
+Description: Package C
 
-Package: dep3
-Version: 1.5.0
-Architecture: amd64
-Description: Dependency 3
+Package: D
+Version: 1.0.0
+Architecture: all
+Depends: G
+Description: Package D
+
+Package: E
+Version: 1.0.0
+Architecture: all
+Depends: H
+Description: Package E
+
+Package: F
+Version: 1.0.0
+Architecture: all
+Depends: G, H
+Description: Package F
+
+Package: G
+Version: 1.0.0
+Architecture: all
+Description: Package G (leaf)
+
+Package: H
+Version: 1.0.0
+Architecture: all
+Description: Package H (leaf)
+
+Package: CYCLIC1
+Version: 1.0.0
+Architecture: all
+Depends: CYCLIC2
+Description: Cyclic package 1
+
+Package: CYCLIC2
+Version: 1.0.0
+Architecture: all
+Depends: CYCLIC3
+Description: Cyclic package 2
+
+Package: CYCLIC3
+Version: 1.0.0
+Architecture: all
+Depends: CYCLIC1
+Description: Cyclic package 3 (creates cycle)
+
 

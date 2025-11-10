@@ -9,7 +9,7 @@
 import argparse
 import sys
 from repository import PackageRepository
-
+from graph_builder import DependencyGraph
 
 def create_parser():
     """
@@ -133,7 +133,7 @@ def main():
         # Выводим конфигурацию
         print_configuration(args)
         
-        # === НОВЫЙ КОД ДЛЯ ЭТАПА 2 ===
+        # === ЭТАП 2: СБОР ДАННЫХ ===
         print("\n" + "=" * 60)
         print("ЭТАП 2: СБОР ДАННЫХ О ЗАВИСИМОСТЯХ")
         print("=" * 60)
@@ -153,37 +153,76 @@ def main():
         print(f"  Версия: {package_info.get('Version', 'неизвестно')}")
         print(f"  Архитектура: {package_info.get('Architecture', 'неизвестно')}")
         
-        # Получаем зависимости
+        # Получаем прямые зависимости
         dependencies = repo.get_dependencies(args.package)
         
-        print(f"\n✓ Найдено зависимостей: {len(dependencies)}")
+        print(f"\n✓ Найдено прямых зависимостей: {len(dependencies)}")
         
         if dependencies:
-            print("\nСписок зависимостей:")
+            print("\nСписок прямых зависимостей:")
             for i, dep in enumerate(dependencies, 1):
                 print(f"  {i}. {dep}")
+        
+        # === ЭТАП 3: ПОСТРОЕНИЕ ГРАФА ===
+        print("\n" + "=" * 60)
+        print("ЭТАП 3: ПОСТРОЕНИЕ ГРАФА ЗАВИСИМОСТЕЙ (DFS с рекурсией)")
+        print("=" * 60)
+        
+        # Создаём объект для построения графа
+        graph = DependencyGraph(repo)
+        
+        # Строим граф зависимостей с помощью DFS
+        print(f"\nНачинаем построение графа для пакета '{args.package}'...\n")
+        graph.build_graph_dfs(args.package)
+        
+        # Выводим построенный граф
+        graph.print_graph()
+        
+        # Получаем статистику
+        stats = graph.get_statistics()
+        
+        print("\n" + "=" * 60)
+        print("СТАТИСТИКА ГРАФА")
+        print("=" * 60)
+        print(f"Всего пакетов в графе: {stats['total_packages']}")
+        print(f"Всего связей (зависимостей): {stats['total_edges']}")
+        print(f"Пакетов без зависимостей (листья): {stats['leaf_packages_count']}")
+        
+        if stats['max_dependencies_package']:
+            print(f"Пакет с максимальным количеством зависимостей:")
+            print(f"  → {stats['max_dependencies_package']} ({stats['max_dependencies_count']} зависимостей)")
+        
+        # Проверяем наличие циклов
+        if graph.has_cycles():
+            print(f"\n⚠ ВНИМАНИЕ: Обнаружены циклические зависимости!")
+            print(f"Количество циклов: {stats['cycles_count']}")
+            print("\nНайденные циклы:")
+            for i, cycle in enumerate(graph.get_cycles(), 1):
+                print(f"  Цикл {i}: {' → '.join(cycle)}")
         else:
-            print("  (пакет не имеет зависимостей)")
+            print(f"\n✓ Циклических зависимостей не обнаружено")
+        
+        # Получаем все транзитивные зависимости
+        all_deps = graph.get_all_dependencies(args.package)
+        print(f"\nВсего транзитивных зависимостей для '{args.package}': {len(all_deps)}")
         
         # Успешное завершение
         print("\n" + "=" * 60)
-        print("✓ Этап 2: Данные успешно собраны!")
+        print("✓ Этап 3: Граф успешно построен!")
         print("=" * 60)
         return 0
         
     except ValueError as e:
-        # Обработка ошибок валидации
         print(f"\n✗ ОШИБКА ВАЛИДАЦИИ:", file=sys.stderr)
         print(f"{e}", file=sys.stderr)
         return 1
         
     except Exception as e:
-        # Обработка прочих ошибок
         print(f"\n✗ НЕПРЕДВИДЕННАЯ ОШИБКА:", file=sys.stderr)
         print(f"{e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc()
         return 2
-
-
 
 
 if __name__ == "__main__":
